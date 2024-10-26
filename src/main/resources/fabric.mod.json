@@ -1,30 +1,31 @@
 {
   "schemaVersion": 1,
-  "id": "talkbubbles",
+  "id": "wynnbubbles",
   "version": "${version}",
-  "name": "Talk Bubbles",
-  "description": "Talk Bubbles add bubbles above your head",
+  "name": "WynnBubbles",
+  "description": "Customized chat bubbles for Wynncraft gameplay",
   "authors": [
-    "Globox_Z"
+    "Jamino",
+    "Original by Globox_Z"
   ],
   "contact": {
-    "homepage": "https://www.curseforge.com/minecraft/mc-mods/talkbubbles",
-    "sources": "https://github.com/Globox1997/TalkBubbles",
-    "issues": "https://github.com/Globox1997/TalkBubbles/issues"
+    "homepage": "https://github.com/jamino/WynnBubbles",
+    "sources": "https://github.com/jamino/WynnBubbles",
+    "issues": "https://github.com/jamino/WynnBubbles/issues"
   },
   "license": "MIT",
-  "icon": "assets/talkbubbles/icon.png",
+  "icon": "assets/wynnbubbles/icon.png",
   "environment": "*",
   "entrypoints": {
     "client": [
-      "net.talkbubbles.TalkBubbles"
+      "net.wynnbubbles.WynnBubbles"
     ],
     "modmenu": [
-      "net.talkbubbles.config.ModMenuIntegration"
+      "net.wynnbubbles.config.ModMenuIntegration"
     ]
   },
   "mixins": [
-    "talkbubbles.mixins.json"
+    "wynnbubbles.mixins.json"
   ],
   "depends": {
     "java": ">=21",
@@ -35,11 +36,5 @@
   },
   "suggests": {
     "another-mod": "*"
-  },
-  "custom": {
-    "mc-publish": {
-      "modrinth": "BUpChT1v",
-      "curseforge": 532113
-    }
   }
 }

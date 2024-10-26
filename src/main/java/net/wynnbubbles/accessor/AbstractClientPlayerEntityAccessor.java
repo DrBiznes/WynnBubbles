@@ -1,4 +1,4 @@
-package net.talkbubbles.accessor;
+package net.wynnbubbles.accessor;
 
 import java.util.List;
 

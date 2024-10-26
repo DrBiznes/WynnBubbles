@@ -1,4 +1,4 @@
-package net.talkbubbles.mixin;
+package net.wynnbubbles.mixin;
 
 import java.util.List;
 
@@ -16,9 +16,9 @@ import net.minecraft.client.render.entity.PlayerEntityRenderer;
 import net.minecraft.client.render.entity.EntityRendererFactory.Context;
 import net.minecraft.client.render.entity.model.PlayerEntityModel;
 import net.minecraft.client.util.math.MatrixStack;
-import net.talkbubbles.TalkBubbles;
-import net.talkbubbles.accessor.AbstractClientPlayerEntityAccessor;
-import net.talkbubbles.util.RenderBubble;
+import net.wynnbubbles.WynnBubbles;
+import net.wynnbubbles.accessor.AbstractClientPlayerEntityAccessor;
+import net.wynnbubbles.util.RenderBubble;
 
 @Environment(EnvType.CLIENT)
 @Mixin(PlayerEntityRenderer.class)
@@ -34,7 +34,7 @@ public abstract class PlayerEntityRendererMixin extends LivingEntityRenderer<Abs
         if (!abstractClientPlayerEntity.isInvisible() && abstractClientPlayerEntity.isAlive()) {
             int oldAge = ((AbstractClientPlayerEntityAccessor) abstractClientPlayerEntity).getOldAge();
             if (oldAge != 0 && oldAge != -1) {
-                if (abstractClientPlayerEntity.age - oldAge > TalkBubbles.CONFIG.chatTime)
+                if (abstractClientPlayerEntity.age - oldAge > WynnBubbles.CONFIG.chatTime)
                     ((AbstractClientPlayerEntityAccessor) abstractClientPlayerEntity).setChatText(null, 0, 0, 0);
                 List<String> textList = ((AbstractClientPlayerEntityAccessor) abstractClientPlayerEntity).getChatText();
                 if (textList != null && !textList.isEmpty()) {

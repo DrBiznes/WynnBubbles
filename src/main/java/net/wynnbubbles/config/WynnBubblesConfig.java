@@ -1,12 +1,12 @@
-package net.talkbubbles.config;
+package net.wynnbubbles.config;
 
 import me.shedaniel.autoconfig.ConfigData;
 import me.shedaniel.autoconfig.annotation.Config;
 import me.shedaniel.cloth.clothconfig.shadowed.blue.endless.jankson.Comment;
 
-@Config(name = "talkbubbles")
+@Config(name = "wynnbubbles")
 @Config.Gui.Background("minecraft:textures/block/stone.png")
-public class TalkBubblesConfig implements ConfigData {
+public class WynnBubblesConfig implements ConfigData {
 
     public double chatRange = 30.0D;
     @Comment("Time in ticks")
@@ -22,5 +22,4 @@ public class TalkBubblesConfig implements ConfigData {
     @Comment("0 = disabled")
     public int maxUUIDWordCheck = 0;
     public boolean showOwnBubble = false;
-
 }

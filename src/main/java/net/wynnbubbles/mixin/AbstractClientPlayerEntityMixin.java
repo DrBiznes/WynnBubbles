@@ -1,4 +1,4 @@
-package net.talkbubbles.mixin;
+package net.wynnbubbles.mixin;
 
 import java.util.List;
 
@@ -8,7 +8,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
-import net.talkbubbles.accessor.AbstractClientPlayerEntityAccessor;
+import net.wynnbubbles.accessor.AbstractClientPlayerEntityAccessor;
 
 @Environment(EnvType.CLIENT)
 @Mixin(AbstractClientPlayerEntity.class)
