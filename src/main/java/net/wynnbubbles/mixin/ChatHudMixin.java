@@ -35,70 +35,6 @@ public class ChatHudMixin {
     @Mutable
     private MinecraftClient client;
 
-    private static final int[] CONTINUATION_SEQUENCE = {
-            0xDAFF, 0xDFFC, 0xE001, 0xDB00, 0xDC06
-    };
-
-    private static final int[] NEWLINE_CONTINUATION_SEQUENCE = {
-            0x000A, 0xDAFF, 0xDFFC, 0xE001, 0xDB00, 0xDC06
-    };
-
-    private static final int[][] INITIAL_SEQUENCES = {
-            // Party chat initial sequence
-            {0xDAFF, 0xDFFC, 0xE005, 0xDAFF, 0xDFFF, 0xE002, 0xDAFF, 0xDFFE},
-            // Guild chat initial sequence
-            {0xDAFF, 0xDFFC, 0xE006, 0xDAFF, 0xDFFF, 0xE002, 0xDAFF, 0xDFFE}
-    };
-
-    private static boolean matchesSequence(String text, int startIndex, int[] sequence) {
-        if (text == null || text.isEmpty() || startIndex + sequence.length > text.length()) return false;
-
-        for (int i = 0; i < sequence.length; i++) {
-            if (text.charAt(startIndex + i) != sequence[i]) return false;
-        }
-        return true;
-    }
-
-    private static String removeAllUnicodeSequences(String text) {
-        StringBuilder cleanedText = new StringBuilder();
-        int i = 0;
-
-        // First check for initial sequences at the start
-        for (int[] sequence : INITIAL_SEQUENCES) {
-            if (matchesSequence(text, 0, sequence)) {
-                i = sequence.length;
-                break;
-            }
-        }
-
-        // Then process the rest of the text
-        while (i < text.length()) {
-            // Check for newline continuation sequence
-            if (matchesSequence(text, i, NEWLINE_CONTINUATION_SEQUENCE)) {
-                // Skip the sequence but add a space
-                i += NEWLINE_CONTINUATION_SEQUENCE.length;
-                if (cleanedText.length() > 0 && cleanedText.charAt(cleanedText.length() - 1) != ' ') {
-                    cleanedText.append(' ');
-                }
-            }
-            // Check for regular continuation sequence
-            else if (matchesSequence(text, i, CONTINUATION_SEQUENCE)) {
-                // Skip the sequence but add a space
-                i += CONTINUATION_SEQUENCE.length;
-                if (cleanedText.length() > 0 && cleanedText.charAt(cleanedText.length() - 1) != ' ') {
-                    cleanedText.append(' ');
-                }
-            }
-            // Normal character
-            else {
-                cleanedText.append(text.charAt(i));
-                i++;
-            }
-        }
-
-        return cleanedText.toString().trim();
-    }
-
     @Inject(method = "addMessage(Lnet/minecraft/text/Text;Lnet/minecraft/network/message/MessageSignatureData;Lnet/minecraft/client/gui/hud/MessageIndicator;)V", at = @At("HEAD"))
     private void addMessageMixin(Text message, @Nullable MessageSignatureData signature, @Nullable MessageIndicator indicator, CallbackInfo info) {
         if (client != null && client.player != null) {
@@ -125,9 +61,6 @@ public class ChatHudMixin {
                             messageStart = rawMessage.indexOf(":", messageStart) + 1;
                             if (messageStart != 0) { // Found the colon
                                 String actualMessage = rawMessage.substring(messageStart).trim();
-
-                                // Remove all Unicode sequences from the actual message
-                                actualMessage = removeAllUnicodeSequences(actualMessage);
 
                                 // Split the message into lines for the bubble
                                 String[] words = actualMessage.split(" ");

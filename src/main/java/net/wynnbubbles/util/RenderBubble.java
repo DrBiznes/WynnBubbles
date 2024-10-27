@@ -25,40 +25,17 @@ public class RenderBubble {
     // Store the last detected chat type
     private static ChatType lastChatType = ChatType.NORMAL;
 
+    private static final String PARTY_CREATION_MESSAGE = "You have successfully created a party";
+
     private static final int[][] GUILD_SEQUENCES = {
-            // Main guild sequence - first message
+            // Main guild sequence
             {0xDAFF, 0xDFFC, 0xE006, 0xDAFF, 0xDFFF, 0xE002, 0xDAFF, 0xDFFE}
     };
 
     private static final int[][] PARTY_SEQUENCES = {
-            // Main party sequence - first message
+            // Main party sequence
             {0xDAFF, 0xDFFC, 0xE005, 0xDAFF, 0xDFFF, 0xE002, 0xDAFF, 0xDFFE}
     };
-
-    private static final int[] CONTINUATION_SEQUENCE = {
-            0xDAFF, 0xDFFC, 0xE001, 0xDB00, 0xDC06
-    };
-
-    private static boolean isPartySystemMessage(String text) {
-        // First check if it starts with the party sequence
-        if (!matchesSequence(text, PARTY_SEQUENCES[0])) {
-            return false;
-        }
-
-        // Then check if the message contains the party creation text
-        return text.contains("You have successfully created a party");
-    }
-
-    private static void debugPrintCharacters(String text) {
-        if (text == null || text.isEmpty()) return;
-        System.out.println("\nDebug: Analyzing message");
-        System.out.println("Message length: " + text.length());
-        System.out.print("First characters (hex): ");
-        for (int i = 0; i < Math.min(text.length(), 20); i++) {
-            System.out.printf("0x%04X ", (int)text.charAt(i));
-        }
-        System.out.println("\nRaw text: " + text);
-    }
 
     private static boolean matchesSequence(String text, int[] sequence) {
         if (text == null || text.isEmpty() || text.length() < sequence.length) return false;
@@ -77,38 +54,28 @@ public class RenderBubble {
     }
 
     private static ChatType getChatType(String text) {
-        debugPrintCharacters(text);
+        System.out.println("RenderBubble: Analyzing message for chat type: " + text);
 
-        // Check for party system message
-        if (isPartySystemMessage(text)) {
-            System.out.println("Detected party system message, switching to PARTY chat");
+        // Check for party creation message
+        if (text.contains(PARTY_CREATION_MESSAGE)) {
+            System.out.println("RenderBubble: Party creation message detected - setting lastChatType to PARTY");
             lastChatType = ChatType.PARTY;
             return ChatType.PARTY;
         }
 
-        // Check if this is a continuation message
-        if (matchesSequence(text, CONTINUATION_SEQUENCE)) {
-            System.out.println("Detected continuation message, maintaining previous type: " + lastChatType);
-            return lastChatType; // Keep the same chat type as the last message
-        }
-
-        // Check for new guild chat sequence
+        // Check for guild chat sequence
         if (matchesAnySequence(text, GUILD_SEQUENCES)) {
-            System.out.println("Detected new GUILD chat sequence");
-            lastChatType = ChatType.GUILD;
+            System.out.println("RenderBubble: Guild chat sequence detected");
             return ChatType.GUILD;
         }
 
-        // Check for new party chat sequence
+        // Check for party chat sequence
         if (matchesAnySequence(text, PARTY_SEQUENCES)) {
-            System.out.println("Detected new PARTY chat sequence");
-            lastChatType = ChatType.PARTY;
+            System.out.println("RenderBubble: Party chat sequence detected");
             return ChatType.PARTY;
         }
 
-        // If no special sequences detected, reset to normal chat
-        System.out.println("Detected NORMAL chat");
-        lastChatType = ChatType.NORMAL;
+        System.out.println("RenderBubble: Normal chat detected");
         return ChatType.NORMAL;
     }
 
@@ -135,6 +102,7 @@ public class RenderBubble {
         ChatType chatType = ChatType.NORMAL;
         if (!textList.isEmpty()) {
             chatType = getChatType(textList.get(0));
+            System.out.println("RenderBubble: Final chat type determined: " + chatType);
         }
 
         // Set color based on chat type
@@ -144,16 +112,19 @@ public class RenderBubble {
                 red = 1.0f;
                 green = 1.0f;
                 blue = 0.0f; // Yellow for party
+                System.out.println("RenderBubble: Using PARTY colors (yellow)");
                 break;
             case GUILD:
                 red = 0.3333f;
                 green = 1.0f;
                 blue = 1.0f; // Aqua for guild
+                System.out.println("RenderBubble: Using GUILD colors (aqua)");
                 break;
             default:
                 red = WynnBubbles.CONFIG.backgroundRed;
                 green = WynnBubbles.CONFIG.backgroundGreen;
                 blue = WynnBubbles.CONFIG.backgroundBlue;
+                System.out.println("RenderBubble: Using normal colors");
                 break;
         }
 
