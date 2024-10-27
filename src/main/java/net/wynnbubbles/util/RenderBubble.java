@@ -22,20 +22,32 @@ import net.wynnbubbles.mixin.DrawContextAccessor;
 public class RenderBubble {
     private static final Identifier BACKGROUND = Identifier.of("wynnbubbles:textures/gui/background.png");
 
-    // Updated sequence definitions from the original version
+    // Store the last detected chat type
+    private static ChatType lastChatType = ChatType.NORMAL;
+
     private static final int[][] GUILD_SEQUENCES = {
-            // Main guild sequence
-            {0xDAFF, 0xDFFC, 0xE006, 0xDAFF, 0xDFFF, 0xE002, 0xDAFF, 0xDFFE},
-            // Guild continuation sequence
-            {0xDAFF, 0xDFFC, 0xE001, 0xDB00, 0xDC06}
+            // Main guild sequence - first message
+            {0xDAFF, 0xDFFC, 0xE006, 0xDAFF, 0xDFFF, 0xE002, 0xDAFF, 0xDFFE}
     };
 
     private static final int[][] PARTY_SEQUENCES = {
-            // Main party sequence
-            {0xDAFF, 0xDFFC, 0xE005, 0xDAFF, 0xDFFF, 0xE002, 0xDAFF, 0xDFFE},
-            // Party continuation sequence
-            {0xDAFF, 0xDFFC, 0xE001, 0xDB00, 0xDC06}
+            // Main party sequence - first message
+            {0xDAFF, 0xDFFC, 0xE005, 0xDAFF, 0xDFFF, 0xE002, 0xDAFF, 0xDFFE}
     };
+
+    private static final int[] CONTINUATION_SEQUENCE = {
+            0xDAFF, 0xDFFC, 0xE001, 0xDB00, 0xDC06
+    };
+
+    private static boolean isPartySystemMessage(String text) {
+        // First check if it starts with the party sequence
+        if (!matchesSequence(text, PARTY_SEQUENCES[0])) {
+            return false;
+        }
+
+        // Then check if the message contains the party creation text
+        return text.contains("You have successfully created a party");
+    }
 
     private static void debugPrintCharacters(String text) {
         if (text == null || text.isEmpty()) return;
@@ -48,20 +60,18 @@ public class RenderBubble {
         System.out.println("\nRaw text: " + text);
     }
 
+    private static boolean matchesSequence(String text, int[] sequence) {
+        if (text == null || text.isEmpty() || text.length() < sequence.length) return false;
+
+        for (int i = 0; i < sequence.length; i++) {
+            if (text.charAt(i) != sequence[i]) return false;
+        }
+        return true;
+    }
+
     private static boolean matchesAnySequence(String text, int[][] sequences) {
-        if (text == null || text.isEmpty()) return false;
-
         for (int[] sequence : sequences) {
-            if (text.length() < sequence.length) continue;
-
-            boolean matches = true;
-            for (int i = 0; i < sequence.length; i++) {
-                if (text.charAt(i) != sequence[i]) {
-                    matches = false;
-                    break;
-                }
-            }
-            if (matches) return true;
+            if (matchesSequence(text, sequence)) return true;
         }
         return false;
     }
@@ -69,19 +79,36 @@ public class RenderBubble {
     private static ChatType getChatType(String text) {
         debugPrintCharacters(text);
 
-        // Check for guild chat sequences
-        if (matchesAnySequence(text, GUILD_SEQUENCES)) {
-            System.out.println("Detected GUILD chat");
-            return ChatType.GUILD;
-        }
-
-        // Check for party chat sequences
-        if (matchesAnySequence(text, PARTY_SEQUENCES)) {
-            System.out.println("Detected PARTY chat");
+        // Check for party system message
+        if (isPartySystemMessage(text)) {
+            System.out.println("Detected party system message, switching to PARTY chat");
+            lastChatType = ChatType.PARTY;
             return ChatType.PARTY;
         }
 
+        // Check if this is a continuation message
+        if (matchesSequence(text, CONTINUATION_SEQUENCE)) {
+            System.out.println("Detected continuation message, maintaining previous type: " + lastChatType);
+            return lastChatType; // Keep the same chat type as the last message
+        }
+
+        // Check for new guild chat sequence
+        if (matchesAnySequence(text, GUILD_SEQUENCES)) {
+            System.out.println("Detected new GUILD chat sequence");
+            lastChatType = ChatType.GUILD;
+            return ChatType.GUILD;
+        }
+
+        // Check for new party chat sequence
+        if (matchesAnySequence(text, PARTY_SEQUENCES)) {
+            System.out.println("Detected new PARTY chat sequence");
+            lastChatType = ChatType.PARTY;
+            return ChatType.PARTY;
+        }
+
+        // If no special sequences detected, reset to normal chat
         System.out.println("Detected NORMAL chat");
+        lastChatType = ChatType.NORMAL;
         return ChatType.NORMAL;
     }
 
@@ -91,10 +118,8 @@ public class RenderBubble {
         GUILD
     }
 
-    public static void renderBubble(MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider,
-                                    TextRenderer textRenderer, EntityRenderDispatcher entityRenderDispatcher,
+    public static void renderBubble(MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, TextRenderer textRenderer, EntityRenderDispatcher entityRenderDispatcher,
                                     List<String> textList, int width, int height, float playerHeight, int i) {
-
         matrixStack.push();
 
         int backgroundWidth = width;
@@ -116,10 +141,14 @@ public class RenderBubble {
         float red, green, blue;
         switch (chatType) {
             case PARTY:
-                red = 1.0f; green = 1.0f; blue = 0.0f; // Yellow for party
+                red = 1.0f;
+                green = 1.0f;
+                blue = 0.0f; // Yellow for party
                 break;
             case GUILD:
-                red = 0.3333f; green = 1.0f; blue = 1.0f; // Aqua for guild
+                red = 0.3333f;
+                green = 1.0f;
+                blue = 1.0f; // Aqua for guild
                 break;
             default:
                 red = WynnBubbles.CONFIG.backgroundRed;
@@ -154,8 +183,7 @@ public class RenderBubble {
         RenderSystem.polygonOffset(0.0F, 0.0F);
         RenderSystem.disablePolygonOffset();
 
-        // Text rendering with proper centering (keeping the improved version)
-        // Skip the first line as it contains the raw message with Unicode characters
+        // Text rendering with proper centering (skip first line as it contains the raw message)
         for (int u = textList.size(); u > 1; u--) {
             String lineText = textList.get(u - 1);
             int lineWidth = textRenderer.getWidth(lineText);
