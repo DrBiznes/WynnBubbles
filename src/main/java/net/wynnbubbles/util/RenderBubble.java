@@ -16,28 +16,30 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.RotationAxis;
 import net.wynnbubbles.WynnBubbles;
+import net.wynnbubbles.accessor.AbstractClientPlayerEntityAccessor;
 import net.wynnbubbles.mixin.DrawContextAccessor;
 
 @Environment(EnvType.CLIENT)
 public class RenderBubble {
     private static final Identifier BACKGROUND = Identifier.of("wynnbubbles:textures/gui/background.png");
 
-    // Store the last detected chat type
-    private static ChatType lastChatType = ChatType.NORMAL;
-
-    private static final String PARTY_CREATION_MESSAGE = "You have successfully created a party";
-
-    private static final int[][] GUILD_SEQUENCES = {
-            // Main guild sequence
+    // Constants needed for chat type detection (used by ChatHudMixin)
+    public static final String PARTY_CREATION_MESSAGE = "You have successfully created a party";
+    public static final int[][] GUILD_SEQUENCES = {
             {0xDAFF, 0xDFFC, 0xE006, 0xDAFF, 0xDFFF, 0xE002, 0xDAFF, 0xDFFE}
     };
-
-    private static final int[][] PARTY_SEQUENCES = {
-            // Main party sequence
+    public static final int[][] PARTY_SEQUENCES = {
             {0xDAFF, 0xDFFC, 0xE005, 0xDAFF, 0xDFFF, 0xE002, 0xDAFF, 0xDFFE}
     };
 
-    private static boolean matchesSequence(String text, int[] sequence) {
+    public enum ChatType {
+        NORMAL,
+        PARTY,
+        GUILD
+    }
+
+    // Helper method for ChatHudMixin to use
+    public static boolean matchesSequence(String text, int[] sequence) {
         if (text == null || text.isEmpty() || text.length() < sequence.length) return false;
 
         for (int i = 0; i < sequence.length; i++) {
@@ -46,47 +48,16 @@ public class RenderBubble {
         return true;
     }
 
-    private static boolean matchesAnySequence(String text, int[][] sequences) {
+    // Helper method for ChatHudMixin to use
+    public static boolean matchesAnySequence(String text, int[][] sequences) {
         for (int[] sequence : sequences) {
             if (matchesSequence(text, sequence)) return true;
         }
         return false;
     }
 
-    private static ChatType getChatType(String text) {
-        System.out.println("RenderBubble: Analyzing message for chat type: " + text);
-
-        // Check for party creation message
-        if (text.contains(PARTY_CREATION_MESSAGE)) {
-            System.out.println("RenderBubble: Party creation message detected - setting lastChatType to PARTY");
-            lastChatType = ChatType.PARTY;
-            return ChatType.PARTY;
-        }
-
-        // Check for guild chat sequence
-        if (matchesAnySequence(text, GUILD_SEQUENCES)) {
-            System.out.println("RenderBubble: Guild chat sequence detected");
-            return ChatType.GUILD;
-        }
-
-        // Check for party chat sequence
-        if (matchesAnySequence(text, PARTY_SEQUENCES)) {
-            System.out.println("RenderBubble: Party chat sequence detected");
-            return ChatType.PARTY;
-        }
-
-        System.out.println("RenderBubble: Normal chat detected");
-        return ChatType.NORMAL;
-    }
-
-    private enum ChatType {
-        NORMAL,
-        PARTY,
-        GUILD
-    }
-
     public static void renderBubble(MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, TextRenderer textRenderer, EntityRenderDispatcher entityRenderDispatcher,
-                                    List<String> textList, int width, int height, float playerHeight, int i) {
+                                    List<String> textList, int width, int height, float playerHeight, int i, AbstractClientPlayerEntityAccessor entity) {
         matrixStack.push();
 
         int backgroundWidth = width;
@@ -98,33 +69,23 @@ public class RenderBubble {
 
         Matrix4f matrix4f = matrixStack.peek().getPositionMatrix();
 
-        // Determine chat type from the first message (which contains the full raw message)
-        ChatType chatType = ChatType.NORMAL;
-        if (!textList.isEmpty()) {
-            chatType = getChatType(textList.get(0));
-            System.out.println("RenderBubble: Final chat type determined: " + chatType);
-        }
-
-        // Set color based on chat type
+        // Set color based on stored chat type
         float red, green, blue;
-        switch (chatType) {
+        switch (entity.getChatType()) {
             case PARTY:
                 red = 1.0f;
                 green = 1.0f;
                 blue = 0.0f; // Yellow for party
-                System.out.println("RenderBubble: Using PARTY colors (yellow)");
                 break;
             case GUILD:
                 red = 0.3333f;
                 green = 1.0f;
                 blue = 1.0f; // Aqua for guild
-                System.out.println("RenderBubble: Using GUILD colors (aqua)");
                 break;
             default:
                 red = WynnBubbles.CONFIG.backgroundRed;
                 green = WynnBubbles.CONFIG.backgroundGreen;
                 blue = WynnBubbles.CONFIG.backgroundBlue;
-                System.out.println("RenderBubble: Using normal colors");
                 break;
         }
 

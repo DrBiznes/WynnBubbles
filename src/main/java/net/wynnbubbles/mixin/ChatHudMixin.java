@@ -25,6 +25,8 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Util;
 import net.wynnbubbles.WynnBubbles;
 import net.wynnbubbles.accessor.AbstractClientPlayerEntityAccessor;
+import net.wynnbubbles.util.RenderBubble;
+import net.wynnbubbles.util.RenderBubble.ChatType;
 
 @Environment(EnvType.CLIENT)
 @Mixin(ChatHud.class)
@@ -35,12 +37,110 @@ public class ChatHudMixin {
     @Mutable
     private MinecraftClient client;
 
+    private static final int[] CONTINUATION_SEQUENCE = {
+            0xDAFF, 0xDFFC, 0xE001, 0xDB00, 0xDC06
+    };
+
+    private static final int[] NEWLINE_CONTINUATION_SEQUENCE = {
+            0x000A, 0xDAFF, 0xDFFC, 0xE001, 0xDB00, 0xDC06
+    };
+
+    // Keep track of current chat type state
+    private static ChatType currentChatType = ChatType.NORMAL;
+
+    private static boolean matchesSequence(String text, int startIndex, int[] sequence) {
+        if (text == null || text.isEmpty() || startIndex + sequence.length > text.length()) return false;
+
+        for (int i = 0; i < sequence.length; i++) {
+            if (text.charAt(startIndex + i) != sequence[i]) return false;
+        }
+        return true;
+    }
+
+    private static String removeAllUnicodeSequences(String text) {
+        StringBuilder cleanedText = new StringBuilder();
+        int i = 0;
+
+        // Then process the text
+        while (i < text.length()) {
+            // Check for newline continuation sequence
+            if (matchesSequence(text, i, NEWLINE_CONTINUATION_SEQUENCE)) {
+                i += NEWLINE_CONTINUATION_SEQUENCE.length;
+                if (cleanedText.length() > 0 && cleanedText.charAt(cleanedText.length() - 1) != ' ') {
+                    cleanedText.append(' ');
+                }
+            }
+            // Check for regular continuation sequence
+            else if (matchesSequence(text, i, CONTINUATION_SEQUENCE)) {
+                i += CONTINUATION_SEQUENCE.length;
+                if (cleanedText.length() > 0 && cleanedText.charAt(cleanedText.length() - 1) != ' ') {
+                    cleanedText.append(' ');
+                }
+            }
+            // Normal character
+            else {
+                cleanedText.append(text.charAt(i));
+                i++;
+            }
+        }
+
+        return cleanedText.toString().trim();
+    }
+
+    private ChatType determineChatType(String text) {
+        System.out.println("ChatHud: Analyzing message: " + text);
+
+        // Debug print the first few characters
+        System.out.print("First characters (hex): ");
+        for (int i = 0; i < Math.min(text.length(), 20); i++) {
+            System.out.printf("0x%04X ", (int)text.charAt(i));
+        }
+        System.out.println();
+
+        // Check for party creation message
+        if (text.contains(RenderBubble.PARTY_CREATION_MESSAGE)) {
+            System.out.println("ChatHud: Party creation message detected - updating chat type");
+            currentChatType = ChatType.PARTY;
+            return currentChatType;
+        }
+
+        // Check for continuation sequence first - if found, maintain current type
+        if (matchesSequence(text, 0, CONTINUATION_SEQUENCE) ||
+                matchesSequence(text, 0, NEWLINE_CONTINUATION_SEQUENCE)) {
+            System.out.println("ChatHud: Continuation sequence detected - maintaining type: " + currentChatType);
+            return currentChatType;
+        }
+
+        // Check for guild chat sequence
+        if (RenderBubble.matchesAnySequence(text, RenderBubble.GUILD_SEQUENCES)) {
+            System.out.println("ChatHud: Guild chat sequence detected");
+            currentChatType = ChatType.GUILD;
+            return ChatType.GUILD;
+        }
+
+        // Check for party chat sequence
+        if (RenderBubble.matchesAnySequence(text, RenderBubble.PARTY_SEQUENCES)) {
+            System.out.println("ChatHud: Party chat sequence detected");
+            currentChatType = ChatType.PARTY;
+            return ChatType.PARTY;
+        }
+
+        // If we get here and don't find any special sequences, it's a new normal message
+        currentChatType = ChatType.NORMAL;
+        System.out.println("ChatHud: Normal chat detected");
+        return ChatType.NORMAL;
+    }
+
     @Inject(method = "addMessage(Lnet/minecraft/text/Text;Lnet/minecraft/network/message/MessageSignatureData;Lnet/minecraft/client/gui/hud/MessageIndicator;)V", at = @At("HEAD"))
     private void addMessageMixin(Text message, @Nullable MessageSignatureData signature, @Nullable MessageIndicator indicator, CallbackInfo info) {
         if (client != null && client.player != null) {
-            String rawMessage = message.getString(); // Get the raw message for Unicode detection
-            System.out.println("Debug - Raw message received: " + rawMessage); // Debug print
+            String rawMessage = message.getString();
+            System.out.println("ChatHud: Raw message received: " + rawMessage);
 
+            // Determine chat type for this message
+            ChatType chatType = determineChatType(rawMessage);
+
+            // Skip creating bubbles for system messages by checking for player sender
             String detectedSenderName = extractSender(message);
             if (!detectedSenderName.isEmpty()) {
                 UUID senderUUID = this.client.getSocialInteractionsManager().getUuid(detectedSenderName);
@@ -61,6 +161,9 @@ public class ChatHudMixin {
                             messageStart = rawMessage.indexOf(":", messageStart) + 1;
                             if (messageStart != 0) { // Found the colon
                                 String actualMessage = rawMessage.substring(messageStart).trim();
+
+                                // Clean the message of Unicode sequences
+                                actualMessage = removeAllUnicodeSequences(actualMessage);
 
                                 // Split the message into lines for the bubble
                                 String[] words = actualMessage.split(" ");
@@ -101,13 +204,11 @@ public class ChatHudMixin {
                                     width++;
                                 }
 
-                                // Pass the full raw message as the first line for color detection,
-                                // followed by the actual message lines
                                 List<String> finalList = new ArrayList<>();
-                                finalList.add(rawMessage); // First line contains full message with Unicode for color detection
-                                finalList.addAll(stringList); // Subsequent lines contain actual visible message
+                                finalList.add(rawMessage); // First line contains full raw message
+                                finalList.addAll(stringList);
 
-                                ((AbstractClientPlayerEntityAccessor) list.get(i)).setChatText(finalList, list.get(i).age, width, height);
+                                ((AbstractClientPlayerEntityAccessor) list.get(i)).setChatText(finalList, list.get(i).age, width, height, chatType);
                             }
                         }
                         break;

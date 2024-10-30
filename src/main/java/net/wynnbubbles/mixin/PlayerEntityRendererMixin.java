@@ -30,17 +30,18 @@ public abstract class PlayerEntityRendererMixin extends LivingEntityRenderer<Abs
 
     @Inject(method = "render", at = @At("HEAD"))
     private void renderMixin(AbstractClientPlayerEntity abstractClientPlayerEntity, float f, float g, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int i,
-            CallbackInfo info) {
+                             CallbackInfo info) {
         if (!abstractClientPlayerEntity.isInvisible() && abstractClientPlayerEntity.isAlive()) {
-            int oldAge = ((AbstractClientPlayerEntityAccessor) abstractClientPlayerEntity).getOldAge();
+            AbstractClientPlayerEntityAccessor entityAccessor = (AbstractClientPlayerEntityAccessor) abstractClientPlayerEntity;
+            int oldAge = entityAccessor.getOldAge();
             if (oldAge != 0 && oldAge != -1) {
                 if (abstractClientPlayerEntity.age - oldAge > WynnBubbles.CONFIG.chatTime)
-                    ((AbstractClientPlayerEntityAccessor) abstractClientPlayerEntity).setChatText(null, 0, 0, 0);
-                List<String> textList = ((AbstractClientPlayerEntityAccessor) abstractClientPlayerEntity).getChatText();
+                    entityAccessor.setChatText(null, 0, 0, 0, RenderBubble.ChatType.NORMAL);
+                List<String> textList = entityAccessor.getChatText();
                 if (textList != null && !textList.isEmpty()) {
                     RenderBubble.renderBubble(matrixStack, vertexConsumerProvider, this.getTextRenderer(), this.dispatcher, textList,
-                            ((AbstractClientPlayerEntityAccessor) abstractClientPlayerEntity).getWidth(), ((AbstractClientPlayerEntityAccessor) abstractClientPlayerEntity).getHeight(),
-                            abstractClientPlayerEntity.getHeight(), i);
+                            entityAccessor.getWidth(), entityAccessor.getHeight(),
+                            abstractClientPlayerEntity.getHeight(), i, entityAccessor);
                 }
             }
         }
