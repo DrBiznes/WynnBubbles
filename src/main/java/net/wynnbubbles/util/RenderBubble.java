@@ -23,7 +23,7 @@ import net.wynnbubbles.mixin.DrawContextAccessor;
 public class RenderBubble {
     private static final Identifier BACKGROUND = Identifier.of("wynnbubbles:textures/gui/background.png");
 
-    // Constants needed for chat type detection (used by ChatHudMixin)
+    // Constants needed for chat type detection
     public static final String PARTY_CREATION_MESSAGE = "You have successfully created a party";
     public static final int[][] GUILD_SEQUENCES = {
             {0xDAFF, 0xDFFC, 0xE006, 0xDAFF, 0xDFFF, 0xE002, 0xDAFF, 0xDFFE}
@@ -31,11 +31,15 @@ public class RenderBubble {
     public static final int[][] PARTY_SEQUENCES = {
             {0xDAFF, 0xDFFC, 0xE005, 0xDAFF, 0xDFFF, 0xE002, 0xDAFF, 0xDFFE}
     };
+    public static final int[][] PRIVATE_MESSAGE_SEQUENCES = {
+            {0xDAFF, 0xDFFC, 0xE007, 0xDAFF, 0xDFFF, 0xE002, 0xDAFF, 0xDFFE}
+    };
 
     public enum ChatType {
         NORMAL,
         PARTY,
-        GUILD
+        GUILD,
+        PRIVATE
     }
 
     // Helper method for ChatHudMixin to use
@@ -81,6 +85,11 @@ public class RenderBubble {
                 red = 0.3333f;
                 green = 1.0f;
                 blue = 1.0f; // Aqua for guild
+                break;
+            case PRIVATE:
+                red = 0.941f;    // Gorange for private
+                green = 0.501f;
+                blue = 0.0f;
                 break;
             default:
                 red = WynnBubbles.CONFIG.backgroundRed;

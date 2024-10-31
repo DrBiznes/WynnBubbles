@@ -1,18 +1,38 @@
 {
     "text.autoconfig.wynnbubbles.title": "Wynn Bubbles Config",
     "text.autoconfig.wynnbubbles.option.chatColor": "Chat Color",
+    "text.autoconfig.wynnbubbles.option.chatColor.@Tooltip": "The color of the text in the chat bubble (in decimal format, e.g. 1315860 for white)",
+
     "text.autoconfig.wynnbubbles.option.chatTime": "Chat Time",
+    "text.autoconfig.wynnbubbles.option.chatTime.@Tooltip": "Time in ticks (20 ticks = 1 second) that chat bubbles remain visible",
+
     "text.autoconfig.wynnbubbles.option.backgroundOpacity": "Background Opacity",
+    "text.autoconfig.wynnbubbles.option.backgroundOpacity.@Tooltip": "Transparency of the bubble background (0.0 = invisible, 1.0 = fully opaque)",
+
     "text.autoconfig.wynnbubbles.option.maxChatWidth": "Chat Width",
+    "text.autoconfig.wynnbubbles.option.maxChatWidth.@Tooltip": "Maximum width in pixels before text wraps to a new line. Higher values make wider bubbles",
+
     "text.autoconfig.wynnbubbles.option.chatHeight": "Chat Height",
+    "text.autoconfig.wynnbubbles.option.chatHeight.@Tooltip": "Vertical offset of bubbles above players' heads. Positive values move up, negative values move down",
+
     "text.autoconfig.wynnbubbles.option.chatScale": "Chat Scale",
+    "text.autoconfig.wynnbubbles.option.chatScale.@Tooltip": "Size multiplier for chat bubbles (1.0 = normal size, 2.0 = double size, 0.5 = half size)",
+
     "text.autoconfig.wynnbubbles.option.chatRange": "Chat Range",
+    "text.autoconfig.wynnbubbles.option.chatRange.@Tooltip": "Maximum distance in blocks at which chat bubbles are visible from other players",
+
     "text.autoconfig.wynnbubbles.option.backgroundRed": "Background Red",
+    "text.autoconfig.wynnbubbles.option.backgroundRed.@Tooltip": "Red component of normal chat bubble background color (0.0 to 1.0)",
+
     "text.autoconfig.wynnbubbles.option.backgroundGreen": "Background Green",
+    "text.autoconfig.wynnbubbles.option.backgroundGreen.@Tooltip": "Green component of normal chat bubble background color (0.0 to 1.0)",
+
     "text.autoconfig.wynnbubbles.option.backgroundBlue": "Background Blue",
+    "text.autoconfig.wynnbubbles.option.backgroundBlue.@Tooltip": "Blue component of normal chat bubble background color (0.0 to 1.0)",
+
     "text.autoconfig.wynnbubbles.option.showOwnBubble": "Show Own Bubble",
+    "text.autoconfig.wynnbubbles.option.showOwnBubble.@Tooltip": "If enabled, shows chat bubbles above your own head when you chat",
+
     "text.autoconfig.wynnbubbles.option.maxUUIDWordCheck": "Max UUID Word Check",
-    "text.autoconfig.wynnbubbles.option.partyChatRed": "Party Chat Red",
-    "text.autoconfig.wynnbubbles.option.partyChatGreen": "Party Chat Green",
-    "text.autoconfig.wynnbubbles.option.partyChatBlue": "Party Chat Blue"
+    "text.autoconfig.wynnbubbles.option.maxUUIDWordCheck.@Tooltip": "Maximum number of words to check for player names in chat messages. 0 = unlimited. Lower values may improve performance"
 }

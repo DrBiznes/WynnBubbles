@@ -111,6 +111,13 @@ public class ChatHudMixin {
             return currentChatType;
         }
 
+        // Check for private message sequence
+        if (RenderBubble.matchesAnySequence(text, RenderBubble.PRIVATE_MESSAGE_SEQUENCES)) {
+            System.out.println("ChatHud: Private message sequence detected");
+            currentChatType = ChatType.PRIVATE;
+            return ChatType.PRIVATE;
+        }
+
         // Check for guild chat sequence
         if (RenderBubble.matchesAnySequence(text, RenderBubble.GUILD_SEQUENCES)) {
             System.out.println("ChatHud: Guild chat sequence detected");
