@@ -45,7 +45,6 @@ public class ChatHudMixin {
             0x000A, 0xDAFF, 0xDFFC, 0xE001, 0xDB00, 0xDC06
     };
 
-    // Keep track of current chat type state
     private static ChatType currentChatType = ChatType.NORMAL;
 
     private static boolean matchesSequence(String text, int startIndex, int[] sequence) {
@@ -61,23 +60,19 @@ public class ChatHudMixin {
         StringBuilder cleanedText = new StringBuilder();
         int i = 0;
 
-        // Then process the text
         while (i < text.length()) {
-            // Check for newline continuation sequence
             if (matchesSequence(text, i, NEWLINE_CONTINUATION_SEQUENCE)) {
                 i += NEWLINE_CONTINUATION_SEQUENCE.length;
                 if (cleanedText.length() > 0 && cleanedText.charAt(cleanedText.length() - 1) != ' ') {
                     cleanedText.append(' ');
                 }
             }
-            // Check for regular continuation sequence
             else if (matchesSequence(text, i, CONTINUATION_SEQUENCE)) {
                 i += CONTINUATION_SEQUENCE.length;
                 if (cleanedText.length() > 0 && cleanedText.charAt(cleanedText.length() - 1) != ' ') {
                     cleanedText.append(' ');
                 }
             }
-            // Normal character
             else {
                 cleanedText.append(text.charAt(i));
                 i++;
@@ -88,53 +83,32 @@ public class ChatHudMixin {
     }
 
     private ChatType determineChatType(String text) {
-        System.out.println("ChatHud: Analyzing message: " + text);
-
-        // Debug print the first few characters
-        System.out.print("First characters (hex): ");
-        for (int i = 0; i < Math.min(text.length(), 20); i++) {
-            System.out.printf("0x%04X ", (int)text.charAt(i));
-        }
-        System.out.println();
-
-        // Check for party creation message
         if (text.contains(RenderBubble.PARTY_CREATION_MESSAGE)) {
-            System.out.println("ChatHud: Party creation message detected - updating chat type");
             currentChatType = ChatType.PARTY;
             return currentChatType;
         }
 
-        // Check for continuation sequence first - if found, maintain current type
         if (matchesSequence(text, 0, CONTINUATION_SEQUENCE) ||
                 matchesSequence(text, 0, NEWLINE_CONTINUATION_SEQUENCE)) {
-            System.out.println("ChatHud: Continuation sequence detected - maintaining type: " + currentChatType);
             return currentChatType;
         }
 
-        // Check for private message sequence
         if (RenderBubble.matchesAnySequence(text, RenderBubble.PRIVATE_MESSAGE_SEQUENCES)) {
-            System.out.println("ChatHud: Private message sequence detected");
             currentChatType = ChatType.PRIVATE;
             return ChatType.PRIVATE;
         }
 
-        // Check for guild chat sequence
         if (RenderBubble.matchesAnySequence(text, RenderBubble.GUILD_SEQUENCES)) {
-            System.out.println("ChatHud: Guild chat sequence detected");
             currentChatType = ChatType.GUILD;
             return ChatType.GUILD;
         }
 
-        // Check for party chat sequence
         if (RenderBubble.matchesAnySequence(text, RenderBubble.PARTY_SEQUENCES)) {
-            System.out.println("ChatHud: Party chat sequence detected");
             currentChatType = ChatType.PARTY;
             return ChatType.PARTY;
         }
 
-        // If we get here and don't find any special sequences, it's a new normal message
         currentChatType = ChatType.NORMAL;
-        System.out.println("ChatHud: Normal chat detected");
         return ChatType.NORMAL;
     }
 
@@ -142,12 +116,8 @@ public class ChatHudMixin {
     private void addMessageMixin(Text message, @Nullable MessageSignatureData signature, @Nullable MessageIndicator indicator, CallbackInfo info) {
         if (client != null && client.player != null) {
             String rawMessage = message.getString();
-            System.out.println("ChatHud: Raw message received: " + rawMessage);
-
-            // Determine chat type for this message
             ChatType chatType = determineChatType(rawMessage);
 
-            // Skip creating bubbles for system messages by checking for player sender
             String detectedSenderName = extractSender(message);
             if (!detectedSenderName.isEmpty()) {
                 UUID senderUUID = this.client.getSocialInteractionsManager().getUuid(detectedSenderName);
@@ -162,17 +132,13 @@ public class ChatHudMixin {
 
                 for (int i = 0; i < list.size(); i++) {
                     if (list.get(i).getUuid().equals(senderUUID)) {
-                        // Extract just the actual message part after the player name
                         int messageStart = rawMessage.indexOf(detectedSenderName);
                         if (messageStart != -1) {
                             messageStart = rawMessage.indexOf(":", messageStart) + 1;
-                            if (messageStart != 0) { // Found the colon
+                            if (messageStart != 0) {
                                 String actualMessage = rawMessage.substring(messageStart).trim();
-
-                                // Clean the message of Unicode sequences
                                 actualMessage = removeAllUnicodeSequences(actualMessage);
 
-                                // Split the message into lines for the bubble
                                 String[] words = actualMessage.split(" ");
                                 List<String> stringList = new ArrayList<>();
                                 String stringCollector = "";
@@ -180,12 +146,10 @@ public class ChatHudMixin {
                                 int width = 0;
                                 int height = 0;
 
-                                // Handle the first word separately to avoid leading space
                                 if (words.length > 0) {
                                     stringCollector = words[0];
                                 }
 
-                                // Process remaining words
                                 for (int j = 1; j < words.length; j++) {
                                     String word = words[j];
                                     String potentialLine = stringCollector + " " + word;
@@ -200,7 +164,6 @@ public class ChatHudMixin {
                                     }
                                 }
 
-                                // Add the last line
                                 if (!stringCollector.isEmpty()) {
                                     stringList.add(stringCollector);
                                     height++;
@@ -212,7 +175,7 @@ public class ChatHudMixin {
                                 }
 
                                 List<String> finalList = new ArrayList<>();
-                                finalList.add(rawMessage); // First line contains full raw message
+                                finalList.add(rawMessage);
                                 finalList.addAll(stringList);
 
                                 ((AbstractClientPlayerEntityAccessor) list.get(i)).setChatText(finalList, list.get(i).age, width, height, chatType);
@@ -231,9 +194,7 @@ public class ChatHudMixin {
 
         if (parts.length > 1) {
             String translationKey = parts[1].split("'")[0];
-            if (translationKey.contains("commands")) {
-                return "";
-            } else if (translationKey.contains("advancement")) {
+            if (translationKey.contains("commands") || translationKey.contains("advancement")) {
                 return "";
             }
         }

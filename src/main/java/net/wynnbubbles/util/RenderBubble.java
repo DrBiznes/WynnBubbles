@@ -23,7 +23,6 @@ import net.wynnbubbles.mixin.DrawContextAccessor;
 public class RenderBubble {
     private static final Identifier BACKGROUND = Identifier.of("wynnbubbles:textures/gui/background.png");
 
-    // Constants needed for chat type detection
     public static final String PARTY_CREATION_MESSAGE = "You have successfully created a party";
     public static final int[][] GUILD_SEQUENCES = {
             {0xDAFF, 0xDFFC, 0xE006, 0xDAFF, 0xDFFF, 0xE002, 0xDAFF, 0xDFFE}
@@ -42,7 +41,6 @@ public class RenderBubble {
         PRIVATE
     }
 
-    // Helper method for ChatHudMixin to use
     public static boolean matchesSequence(String text, int[] sequence) {
         if (text == null || text.isEmpty() || text.length() < sequence.length) return false;
 
@@ -52,7 +50,6 @@ public class RenderBubble {
         return true;
     }
 
-    // Helper method for ChatHudMixin to use
     public static boolean matchesAnySequence(String text, int[][] sequences) {
         for (int[] sequence : sequences) {
             if (matchesSequence(text, sequence)) return true;
@@ -73,44 +70,38 @@ public class RenderBubble {
 
         Matrix4f matrix4f = matrixStack.peek().getPositionMatrix();
 
-        // Set color based on stored chat type
-        float red, green, blue;
+        float red = WynnBubbles.CONFIG.backgroundRed;
+        float green = WynnBubbles.CONFIG.backgroundGreen;
+        float blue = WynnBubbles.CONFIG.backgroundBlue;
+
         switch (entity.getChatType()) {
             case PARTY:
                 red = 1.0f;
                 green = 1.0f;
-                blue = 0.0f; // Yellow for party
+                blue = 0.0f;
                 break;
             case GUILD:
                 red = 0.3333f;
                 green = 1.0f;
-                blue = 1.0f; // Aqua for guild
+                blue = 1.0f;
                 break;
             case PRIVATE:
-                red = 0.941f;    // Gorange for private
+                red = 0.941f;
                 green = 0.501f;
                 blue = 0.0f;
-                break;
-            default:
-                red = WynnBubbles.CONFIG.backgroundRed;
-                green = WynnBubbles.CONFIG.backgroundGreen;
-                blue = WynnBubbles.CONFIG.backgroundBlue;
                 break;
         }
 
         RenderSystem.setShaderColor(red, green, blue, WynnBubbles.CONFIG.backgroundOpacity);
-
-        // Standard rendering setup
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
         RenderSystem.enableDepthTest();
-
         RenderSystem.enablePolygonOffset();
         RenderSystem.polygonOffset(3.0F, 3.0F);
+
         MinecraftClient client = MinecraftClient.getInstance();
         DrawContext context = DrawContextAccessor.getDrawContext(client, matrixStack, client.getBufferBuilders().getEntityVertexConsumers());
 
-        // Bubble geometry rendering
         context.drawTexture(BACKGROUND, -backgroundWidth / 2 - 2, -backgroundHeight - (backgroundHeight - 1) * 7, 5, 5, 0.0F, 0.0F, 5, 5, 32, 32);
         context.drawTexture(BACKGROUND, -backgroundWidth / 2 - 2, -backgroundHeight - (backgroundHeight - 1) * 7 + 5, 5, backgroundHeight + (backgroundHeight - 1) * 8, 0.0F, 6.0F, 5, 1, 32, 32);
         context.drawTexture(BACKGROUND, -backgroundWidth / 2 - 2, 5 + (backgroundHeight - 1), 5, 5, 0.0F, 8.0F, 5, 5, 32, 32);
@@ -124,7 +115,6 @@ public class RenderBubble {
         RenderSystem.polygonOffset(0.0F, 0.0F);
         RenderSystem.disablePolygonOffset();
 
-        // Text rendering with proper centering (skip first line as it contains the raw message)
         for (int u = textList.size(); u > 1; u--) {
             String lineText = textList.get(u - 1);
             int lineWidth = textRenderer.getWidth(lineText);
