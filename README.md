@@ -11,6 +11,7 @@ Show the people what you're trying to say. Chat floats above your head and chang
 - Configurable bubble size, position, and colors
 - Removes unwanted unicode symbols from chat
 - Stops system messages during raids and dungeons from displaying (as happens using TalkBubbles)
+- Works with player ghosts
 
 ## Installation
 1. Make sure you have Fabric Loader and Fabric API installed
