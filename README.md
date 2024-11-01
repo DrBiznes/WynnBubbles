@@ -1,5 +1,6 @@
 # WynnBubbles
 ![wynnbubblesbanner](https://github.com/user-attachments/assets/c362b7f7-1966-4c6c-8028-b2dd66cec96e)
+
 Show the people what you're trying to say. Chat floats above your head and changes colors for party, guild, and private chat. A fork of [TalkBubbles](https://modrinth.com/mod/talkbubbles) designed to work specifically with Wynncraft chat. Made for my modpack [World of Wynncraft](https://modrinth.com/modpack/world-of-wynncraft)
 
 
