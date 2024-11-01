@@ -10,8 +10,8 @@
   ],
   "contact": {
     "homepage": "https://modrinth.com/mod/wynnbubbles",
-    "sources": "https://github.com/jamino/WynnBubbles",
-    "issues": "https://github.com/jamino/WynnBubbles/issues"
+    "sources": "https://github.com/DrBiznes/WynnBubbles",
+    "issues": "https://github.com/DrBiznes/WynnBubbles/issues"
   },
   "license": "MIT",
   "icon": "assets/wynnbubbles/icon.png",
