@@ -40,7 +40,7 @@ You can configure WynnBubbles through the Mod Menu interface or config file:
 - Access the mod's configuration through Mod Menu to adjust bubble appearance
 
 ## Requirements
-- Minecraft 1.21
+- Minecraft 1.21 or 1.21.1
 - Fabric Loader 0.16.5 or higher
 - Fabric API
 - Cloth Config API
