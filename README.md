@@ -1,4 +1,5 @@
 # WynnBubbles
+![wynnbubblesbanner](https://github.com/user-attachments/assets/c362b7f7-1966-4c6c-8028-b2dd66cec96e)
 
 Show the people what you're trying to say. Chat floats above your head and changes colors for party, guild, and private chat. A fork of [TalkBubbles](https://modrinth.com/mod/talkbubbles) designed to work specifically with Wynncraft chat. Made for my modpack [World of Wynncraft](https://modrinth.com/modpack/world-of-wynncraft)
 
@@ -10,6 +11,7 @@ Show the people what you're trying to say. Chat floats above your head and chang
 - Configurable bubble size, position, and colors
 - Removes unwanted unicode symbols from chat
 - Stops system messages during raids and dungeons from displaying (as happens using TalkBubbles)
+- Works with player ghosts
 
 ## Installation
 1. Make sure you have Fabric Loader and Fabric API installed
