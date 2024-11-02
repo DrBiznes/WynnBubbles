@@ -59,5 +59,17 @@ You can configure WynnBubbles through the Mod Menu interface or config file:
 - Thanks to everyone who I forced to help test the chat detection
 - Thanks to IgbarVonSquid!!!
 
-## Support
-If you encounter any issues or have any questions, please open an issue on the GitHub repository.
+## Support and My Mods
+Please report any bugs or feature suggestions on the Github Issues page, I'll be updating this frequently with community feedback and ideas! You can also [join my discord](https://discord.gg/jqFF64rXZZ) if you need direct support, or want to stay updated with all of my mods.
+### Check out all my projects!
+>   [World of Wynncraft Modpack](https://modrinth.com/modpack/world-of-wynncraft)
+
+>   [WynnVista](https://modrinth.com/mod/wynnvista)
+
+>   [Wynn Weapon Bigger](https://modrinth.com/mod/wynnweaponbigger)
+
+>   [Nimble ReWynnded](https://modrinth.com/mod/nimble-rewynnded)
+
+>   [Class Keybind Profiles](https://modrinth.com/mod/class-keybind-profiles)
+
+>   [WynnBubbles](https://modrinth.com/mod/wynnbubbles)
