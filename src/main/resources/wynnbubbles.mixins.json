@@ -6,6 +6,8 @@
   "mixins": [],
   "client": [
     "PlayerEntityRendererMixin",
+    "LivingEntityRendererMixin",
+    "PlayerEntityRenderStateMixin",
     "AbstractClientPlayerEntityMixin",
     "ChatHudMixin",
     "DrawContextAccessor"

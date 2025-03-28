@@ -2,6 +2,9 @@ package net.wynnbubbles.mixin;
 
 import java.util.List;
 
+import net.minecraft.client.render.entity.state.LivingEntityRenderState;
+import net.minecraft.client.render.entity.state.PlayerEntityRenderState;
+import net.wynnbubbles.accessor.PlayerEntityRenderStateAccessor;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -22,14 +25,15 @@ import net.wynnbubbles.util.RenderBubble;
 
 @Environment(EnvType.CLIENT)
 @Mixin(PlayerEntityRenderer.class)
-public abstract class PlayerEntityRendererMixin extends LivingEntityRenderer<AbstractClientPlayerEntity, PlayerEntityModel<AbstractClientPlayerEntity>> {
+public abstract class PlayerEntityRendererMixin extends LivingEntityRenderer<AbstractClientPlayerEntity, PlayerEntityRenderState, PlayerEntityModel> {
 
-    public PlayerEntityRendererMixin(Context ctx, PlayerEntityModel<AbstractClientPlayerEntity> model, float shadowRadius) {
+    public PlayerEntityRendererMixin(Context ctx, PlayerEntityModel model, float shadowRadius) {
         super(ctx, model, shadowRadius);
     }
 
-    @Inject(method = "render", at = @At("HEAD"))
-    private void renderMixin(AbstractClientPlayerEntity abstractClientPlayerEntity, float f, float g, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int i,
+
+    @Inject(method = "updateRenderState", at = @At("HEAD"))
+    private void renderMixin(AbstractClientPlayerEntity abstractClientPlayerEntity, PlayerEntityRenderState playerEntityRenderState, float f,
                              CallbackInfo info) {
         if (!abstractClientPlayerEntity.isInvisible() && abstractClientPlayerEntity.isAlive()) {
             AbstractClientPlayerEntityAccessor entityAccessor = (AbstractClientPlayerEntityAccessor) abstractClientPlayerEntity;
@@ -39,11 +43,13 @@ public abstract class PlayerEntityRendererMixin extends LivingEntityRenderer<Abs
                     entityAccessor.setChatText(null, 0, 0, 0, RenderBubble.ChatType.NORMAL);
                 List<String> textList = entityAccessor.getChatText();
                 if (textList != null && !textList.isEmpty()) {
-                    RenderBubble.renderBubble(matrixStack, vertexConsumerProvider, this.getTextRenderer(), this.dispatcher, textList,
-                            entityAccessor.getWidth(), entityAccessor.getHeight(),
-                            abstractClientPlayerEntity.getHeight(), i, entityAccessor);
+                    ((PlayerEntityRenderStateAccessor) playerEntityRenderState).setBubbleText(textList);
+                } else {
+                    ((PlayerEntityRenderStateAccessor) playerEntityRenderState).setBubbleText(null);
                 }
             }
+        } else {
+            ((PlayerEntityRenderStateAccessor) playerEntityRenderState).setBubbleText(null);
         }
     }
 }
