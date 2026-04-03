@@ -1,9 +1,9 @@
-// PlayerEntityRenderStateAccessor.java
 package net.wynnbubbles.accessor;
 
-import java.util.List;
+import net.wynnbubbles.util.BubbleMessage;
+import net.wynnbubbles.util.HistoricalData;
 
 public interface PlayerEntityRenderStateAccessor {
-    List<String> getBubbleText();
-    void setBubbleText(List<String> text);
+    HistoricalData<BubbleMessage> wynnbubbles$getBubbleMessages();
+    void wynnbubbles$setBubbleMessages(HistoricalData<BubbleMessage> messages);
 }

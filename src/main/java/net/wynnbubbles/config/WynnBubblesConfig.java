@@ -43,4 +43,22 @@ public class WynnBubblesConfig implements ConfigData {
 
     @Comment("If enabled, shows chat bubbles above your own head when you chat")
     public boolean showOwnBubble = true;
+
+    @Comment("Extra Y offset (in blocks) to push bubbles above Wynntils nametags. 0.5 covers base nametag + Wynntils marker. Increase if you have WynnTitles or extra nametag rows. Has no effect when Wynntils is not installed")
+    public float wynntilsOffset = 0.5f;
+
+    @Comment("Base vertical offset (in blocks) from the top of the player bounding box to the bottom of the lowest bubble")
+    public float balloonsHeightOffset = 0.9f;
+
+    @Comment("Maximum number of stacked chat bubbles shown above a player at once")
+    public int maxBubbles = 5;
+
+    @Comment("Pixel gap between stacked bubbles")
+    public int distanceBetweenBubbles = 3;
+
+    @Comment("Internal padding (in pixels) inside each bubble background")
+    public int balloonPadding = 1;
+
+    @Comment("Enable verbose debug logging to the game console (useful for diagnosing missing bubbles)")
+    public boolean debugMode = false;
 }

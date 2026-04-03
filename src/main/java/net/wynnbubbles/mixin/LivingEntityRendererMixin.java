@@ -1,67 +1,54 @@
 package net.wynnbubbles.mixin;
 
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.AbstractClientPlayerEntity;
-import net.minecraft.client.render.VertexConsumerProvider;
-import net.minecraft.client.render.entity.LivingEntityRenderer;
-import net.minecraft.client.render.entity.state.LivingEntityRenderState;
-import net.minecraft.client.render.entity.state.PlayerEntityRenderState;
-import net.minecraft.client.util.math.MatrixStack;
-import net.wynnbubbles.accessor.AbstractClientPlayerEntityAccessor;
+import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.entity.LivingEntityRenderer;
+import net.minecraft.client.renderer.entity.state.AvatarRenderState;
+import net.minecraft.client.renderer.entity.state.LivingEntityRenderState;
+import net.minecraft.client.renderer.state.CameraRenderState;
 import net.wynnbubbles.accessor.PlayerEntityRenderStateAccessor;
-import net.wynnbubbles.util.RenderBubble;
+import net.wynnbubbles.client.BubbleRenderer;
+import net.wynnbubbles.util.BubbleMessage;
+import net.wynnbubbles.util.HistoricalData;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import java.util.List;
 
 @Mixin(LivingEntityRenderer.class)
 public abstract class LivingEntityRendererMixin {
 
     @Inject(
-            method = "render(Lnet/minecraft/client/render/entity/state/LivingEntityRenderState;" +
-                    "Lnet/minecraft/client/util/math/MatrixStack;" +
-                    "Lnet/minecraft/client/render/VertexConsumerProvider;I)V",
-            at = @At("TAIL")
+        method = "submit(Lnet/minecraft/client/renderer/entity/state/LivingEntityRenderState;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/SubmitNodeCollector;Lnet/minecraft/client/renderer/state/CameraRenderState;)V",
+        at = @At("HEAD")
     )
-    private void onRenderTail(
+    private void wynnbubbles$renderBubbles(
             LivingEntityRenderState state,
-            MatrixStack matrices,
-            VertexConsumerProvider vertexConsumers,
-            int light,
+            PoseStack poseStack,
+            SubmitNodeCollector collector,
+            CameraRenderState cameraState,
             CallbackInfo ci
     ) {
-        if (!(state instanceof PlayerEntityRenderState playerState)) {
-            return;
+        if (!(state instanceof AvatarRenderState avatarState)) return;
+        if (avatarState.isInvisible) return;
+
+        HistoricalData<BubbleMessage> messages = ((PlayerEntityRenderStateAccessor) avatarState).wynnbubbles$getBubbleMessages();
+        if (messages == null || messages.isEmpty()) return;
+
+        Minecraft client = Minecraft.getInstance();
+        if (client.level == null) return;
+
+        if (net.wynnbubbles.WynnBubbles.CONFIG.debugMode) {
+            net.wynnbubbles.WynnBubbles.LOGGER.info("[WynnBubbles] renderBubbles: {} message(s), height={}", messages.size(), avatarState.boundingBoxHeight);
         }
 
-        MinecraftClient client = MinecraftClient.getInstance();
-        if (client.world == null) return;
-
-        var entity = client.world.getEntityById(playerState.id);
-        if (!(entity instanceof AbstractClientPlayerEntity player)) return;
-
-        List<String> bubbleText = ((AbstractClientPlayerEntityAccessor) player).getChatText();
-        if (bubbleText == null || bubbleText.isEmpty()) {
-            return;
-        }
-
-        if (client.world == null) {
-            return;
-        }
-
-        RenderBubble.renderBubble(
-                matrices,
-                vertexConsumers,
-                client.textRenderer,
-                client.getEntityRenderDispatcher(),
-                bubbleText,
-                ((AbstractClientPlayerEntityAccessor) player).getWidth(),
-                ((AbstractClientPlayerEntityAccessor) player).getHeight(),
-                player.getHeight(),
-                light,
-                (AbstractClientPlayerEntityAccessor) player
+        BubbleRenderer.renderBubbles(
+                poseStack,
+                cameraState.orientation,
+                client.font,
+                messages,
+                avatarState.boundingBoxHeight + 0.3f
         );
     }
 }

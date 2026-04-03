@@ -1,25 +1,25 @@
 package net.wynnbubbles.mixin;
 
-import net.minecraft.client.render.entity.state.PlayerEntityRenderState;
+import net.minecraft.client.renderer.entity.state.AvatarRenderState;
 import net.wynnbubbles.accessor.PlayerEntityRenderStateAccessor;
+import net.wynnbubbles.util.BubbleMessage;
+import net.wynnbubbles.util.HistoricalData;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 
-import java.util.List;
-
-@Mixin(PlayerEntityRenderState.class)
+@Mixin(AvatarRenderState.class)
 public class PlayerEntityRenderStateMixin implements PlayerEntityRenderStateAccessor {
 
     @Unique
-    private List<String> bubbleText;
+    private HistoricalData<BubbleMessage> wynnbubbles$bubbleMessages;
 
     @Override
-    public List<String> getBubbleText() {
-        return bubbleText;
+    public HistoricalData<BubbleMessage> wynnbubbles$getBubbleMessages() {
+        return wynnbubbles$bubbleMessages;
     }
 
     @Override
-    public void setBubbleText(List<String> text) {
-        this.bubbleText = text;
+    public void wynnbubbles$setBubbleMessages(HistoricalData<BubbleMessage> messages) {
+        this.wynnbubbles$bubbleMessages = messages;
     }
 }

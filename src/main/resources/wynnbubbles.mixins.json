@@ -9,8 +9,7 @@
     "LivingEntityRendererMixin",
     "PlayerEntityRenderStateMixin",
     "AbstractClientPlayerEntityMixin",
-    "ChatHudMixin",
-    "DrawContextAccessor"
+    "ChatHudMixin"
   ],
   "injectors": {
     "defaultRequire": 1

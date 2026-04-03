@@ -1,56 +1,28 @@
 package net.wynnbubbles.mixin;
 
-import java.util.List;
-import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.network.AbstractClientPlayerEntity;
+import net.minecraft.client.player.AbstractClientPlayer;
 import net.wynnbubbles.accessor.AbstractClientPlayerEntityAccessor;
-import net.wynnbubbles.util.RenderBubble.ChatType;
+import net.wynnbubbles.util.BubbleMessage;
+import net.wynnbubbles.util.HistoricalData;
 
 @Environment(EnvType.CLIENT)
-@Mixin(AbstractClientPlayerEntity.class)
+@Mixin(AbstractClientPlayer.class)
 public class AbstractClientPlayerEntityMixin implements AbstractClientPlayerEntityAccessor {
-    @Nullable
-    private List<String> chatTextList = null;
-    private int oldAge = 0;
-    private int width;
-    private int height;
-    private ChatType chatType = ChatType.NORMAL;
+
+    @Unique
+    private final HistoricalData<BubbleMessage> wynnbubbles$bubbleMessages = new HistoricalData<>(5);
 
     @Override
-    public void setChatText(List<String> textList, int currentAge, int width, int height, ChatType chatType) {
-        this.chatTextList = textList;
-        this.oldAge = currentAge;
-        this.width = width;
-        this.height = height;
-        this.chatType = chatType;
-    }
-
-    @Nullable
-    @Override
-    public List<String> getChatText() {
-        return this.chatTextList;
+    public HistoricalData<BubbleMessage> wynnbubbles$getBubbleMessages() {
+        return wynnbubbles$bubbleMessages;
     }
 
     @Override
-    public int getOldAge() {
-        return this.oldAge;
-    }
-
-    @Override
-    public int getWidth() {
-        return this.width;
-    }
-
-    @Override
-    public int getHeight() {
-        return this.height;
-    }
-
-    @Override
-    public ChatType getChatType() {
-        return this.chatType;
+    public void wynnbubbles$addBubbleMessage(BubbleMessage message) {
+        wynnbubbles$bubbleMessages.add(message);
     }
 }
