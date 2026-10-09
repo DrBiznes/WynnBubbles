@@ -47,6 +47,25 @@ class BubbleStackingTest {
     }
 
     @Test
+    void theSameLineDeliveredSeveralTimesMakesOneBubble() {
+        BubbleStore store = new BubbleStore();
+        store.add(ALICE, bubble("yo", 10), 5);
+        store.add(ALICE, bubble("yo", 10), 5);
+        store.add(ALICE, bubble("yo", 11), 5);
+
+        assertEquals(List.of("yo"), texts(store, ALICE));
+    }
+
+    @Test
+    void sayingTheSameThingAgainLaterMakesANewBubble() {
+        BubbleStore store = new BubbleStore();
+        store.add(ALICE, bubble("yo", 10), 5);
+        store.add(ALICE, bubble("yo", 40), 5);
+
+        assertEquals(List.of("yo", "yo"), texts(store, ALICE));
+    }
+
+    @Test
     void playersDoNotShareBubbles() {
         BubbleStore store = new BubbleStore();
         store.add(ALICE, bubble("from alice", 0), 5);

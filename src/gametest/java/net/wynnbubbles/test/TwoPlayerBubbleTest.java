@@ -58,6 +58,9 @@ public class TwoPlayerBubbleTest implements FabricClientGameTest {
 
             // --- who gets which bubble ---
             context.runOnClient(mc -> {
+                // Wynntils hands each line to one chat HUD per chat tab, so the same line arrives several times
+                chat(mc, "Alice: hello there");
+                chat(mc, "Alice: hello there");
                 chat(mc, "Alice: hello there");
                 chat(mc, GUILD + " Bob: guild meeting at 8");
                 chat(mc, "Alice: this is a much longer message that has to wrap onto a second line of the bubble");

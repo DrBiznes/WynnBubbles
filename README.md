@@ -14,7 +14,7 @@ Show the people what you're trying to say. Chat floats above your head and chang
 - Stops system messages during raids and dungeons from displaying (as happens using TalkBubbles)
 - Stacks several bubbles per player, newest at the bottom
 - Works with player ghosts
-- Sits above whatever is drawn over a player's name (Wynntils lines and badges, title mods)
+- Sits above whatever is drawn over a player's name (Wynntils lines and badges)
 
 ## Installation
 1. Make sure you have Fabric Loader and Fabric API installed
@@ -32,7 +32,7 @@ Show the people what you're trying to say. Chat floats above your head and chang
 You can configure WynnBubbles through the Mod Menu interface or config file:
 1. Install [Mod Menu](https://modrinth.com/mod/modmenu) if you haven't already
 2. In the game, go to Mods -> Find "WynnBubbles" -> Click "Configure"
-3. Adjust settings like bubble scale, colors, and chat range
+3. Adjust settings like bubble scale, colors, chat range, and how many bubbles stack
 4. Toggle showing your own bubbles on/off
 
 ## Usage
@@ -40,7 +40,7 @@ You can configure WynnBubbles through the Mod Menu interface or config file:
 - Bubbles will show different colors for:
   - Yellow = Party chat
   - Aqua = Guild chat
-  - Orange = Private messages
+  - Green = Private messages
 - Bubbles automatically disappear after a configurable time
 - Access the mod's configuration through Mod Menu to adjust bubble appearance
 
@@ -85,3 +85,5 @@ Please report any bugs or feature suggestions on the Github Issues page, I'll be
 >   [Class Keybind Profiles](https://modrinth.com/mod/class-keybind-profiles)
 
 >   [WynnBubbles](https://modrinth.com/mod/wynnbubbles)
+
+>   [WynnLODGrabber](https://modrinth.com/mod/wynnlodgrabber)
