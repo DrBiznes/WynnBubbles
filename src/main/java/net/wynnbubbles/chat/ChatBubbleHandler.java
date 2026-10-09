@@ -1,5 +1,6 @@
 package net.wynnbubbles.chat;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -9,9 +10,12 @@ import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.HoverEvent;
+import net.minecraft.network.chat.Style;
 import net.minecraft.network.chat.contents.TranslatableContents;
 import net.wynnbubbles.WynnBubbles;
 import net.wynnbubbles.bubble.Bubble;
+import net.wynnbubbles.chat.ChatParser.Nickname;
 import net.wynnbubbles.chat.ChatParser.ParsedChat;
 import net.wynnbubbles.identity.Identities;
 import net.wynnbubbles.identity.SenderMatcher;
@@ -35,8 +39,9 @@ public final class ChatBubbleHandler {
         Predicate<String> isPlayerName = word -> connection.getPlayerInfo(word) != null
                 || players.stream().anyMatch(p -> p.getGameProfile().name().equalsIgnoreCase(word));
 
-        Optional<ParsedChat> parsed =
-                ChatParser.parse(raw, currentChatType, isPlayerName, WynnBubbles.CONFIG.maxUUIDWordCheck);
+        List<Nickname> nicknames = findNicknames(message);
+        Optional<ParsedChat> parsed = ChatParser.parse(
+                raw, currentChatType, isPlayerName, WynnBubbles.CONFIG.maxUUIDWordCheck, nicknames);
         if (parsed.isEmpty()) return;
         ParsedChat chat = parsed.get();
 
@@ -56,9 +61,10 @@ public final class ChatBubbleHandler {
 
         if (WynnBubbles.CONFIG.debugMode) {
             WynnBubbles.LOGGER.info(
-                    "[WynnBubbles] {} from '{}' (tab list id {}, wynntils {}): {}",
+                    "[WynnBubbles] {} from '{}' (nicknames {}, tab list id {}, wynntils {}): {}",
                     chat.type(),
                     chat.sender(),
+                    nicknames,
                     tabListId,
                     Identities.usingWynntils(),
                     sender.map(p -> "matched entity " + p.getUUID() + (Identities.isGhost(p) ? " (ghost)" : ""))
@@ -69,6 +75,22 @@ public final class ChatBubbleHandler {
                 Identities.canonicalId(player),
                 new Bubble(Component.literal(chat.body()), chat.type(), WynnBubbles.clientTick()),
                 WynnBubbles.CONFIG.maxBubbles));
+    }
+
+    /** Champion+ players chat under a nickname; the real username is only in the name's hover text. */
+    private static List<Nickname> findNicknames(Component message) {
+        List<Nickname> nicknames = new ArrayList<>();
+        message.visit(
+                (style, text) -> {
+                    if (style.getHoverEvent() instanceof HoverEvent.ShowText(Component hover)) {
+                        ChatParser.parseNicknameHover(hover.getString())
+                                .filter(nickname -> !nicknames.contains(nickname))
+                                .ifPresent(nicknames::add);
+                    }
+                    return Optional.empty();
+                },
+                Style.EMPTY);
+        return nicknames;
     }
 
     private static boolean isSystemMessage(Component message) {

@@ -3,10 +3,12 @@ package net.wynnbubbles;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
 import net.wynnbubbles.chat.ChatParser;
+import net.wynnbubbles.chat.ChatParser.Nickname;
 import net.wynnbubbles.chat.ChatParser.ParsedChat;
 import net.wynnbubbles.util.ChatType;
 import net.wynnbubbles.util.WynnChatDetector;
@@ -101,5 +103,57 @@ class ChatParsingTest {
 
         assertTrue(ChatParser.parse(raw, ChatType.NORMAL, KNOWN, 3).isEmpty());
         assertEquals("Alice", ChatParser.parse(raw, ChatType.NORMAL, KNOWN, 4).orElseThrow().sender());
+    }
+
+    @Test
+    void nicknameHoverGivesTheRealUsername() {
+        assertEquals(
+                new Nickname("Cat Girl Mithryl", "Alice"),
+                ChatParser.parseNicknameHover("Cat Girl Mithryl's real name is Alice").orElseThrow());
+        assertEquals(
+                new Nickname("Boss", "Bob"),
+                ChatParser.parseNicknameHover("§fBoss§7' real username is §fBob").orElseThrow());
+    }
+
+    @Test
+    void wynntilsRevealedNicknameHoverIsUnderstood() {
+        assertEquals(
+                new Nickname("Cat Girl Mithryl", "Alice"),
+                ChatParser.parseNicknameHover("§fAlice§7's nickname is §fCat Girl Mithryl").orElseThrow());
+    }
+
+    @Test
+    void otherHoversAreNotNicknames() {
+        assertTrue(ChatParser.parseNicknameHover("Click to view Alice's profile").isEmpty());
+    }
+
+    @Test
+    void nicknamedSenderResolvesToTheUsername() {
+        List<Nickname> nicknames = List.of(new Nickname("Cat Girl Mithryl", "Carol"));
+        ParsedChat chat = ChatParser.parse("Cat Girl Mithryl: GGs", ChatType.NORMAL, KNOWN, 0, nicknames)
+                .orElseThrow();
+
+        assertEquals("Carol", chat.sender());
+        assertEquals("GGs", chat.body());
+    }
+
+    @Test
+    void nicknameThatLooksLikeAnotherPlayerStillResolvesToItsOwner() {
+        List<Nickname> nicknames = List.of(new Nickname("Bob", "Alice"));
+
+        assertEquals(
+                "Alice",
+                ChatParser.parse("Bob: hi", ChatType.NORMAL, KNOWN, 0, nicknames).orElseThrow().sender());
+    }
+
+    @Test
+    void nicknamedRecipientDoesNotBecomeTheSender() {
+        List<Nickname> nicknames = List.of(new Nickname("Boss", "Bob"));
+
+        assertEquals(
+                "Alice",
+                ChatParser.parse(PRIVATE + " Alice  Boss: psst", ChatType.PRIVATE, KNOWN, 0, nicknames)
+                        .orElseThrow()
+                        .sender());
     }
 }
