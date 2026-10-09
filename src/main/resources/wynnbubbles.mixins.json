@@ -5,12 +5,11 @@
   "compatibilityLevel": "JAVA_21",
   "mixins": [],
   "client": [
-    "PlayerEntityRendererMixin",
+    "AvatarRenderStateMixin",
+    "AvatarRendererMixin",
+    "ChatComponentMixin",
     "LivingEntityRendererMixin",
-    "PlayerEntityRenderStateMixin",
-    "AbstractClientPlayerEntityMixin",
-    "ChatHudMixin",
-    "DrawContextAccessor"
+    "SubmitNodeCollectionMixin"
   ],
   "injectors": {
     "defaultRequire": 1

@@ -31,3 +31,8 @@ bin/
 # fabric
 
 run/
+
+# local reference copies, never committed
+
+lib/
+Talk-Balloons-master/

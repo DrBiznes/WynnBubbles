@@ -12,7 +12,9 @@ Show the people what you're trying to say. Chat floats above your head and chang
 - Configurable bubble size, position, and colors
 - Removes unwanted unicode symbols from chat
 - Stops system messages during raids and dungeons from displaying (as happens using TalkBubbles)
+- Stacks several bubbles per player, newest at the bottom
 - Works with player ghosts
+- Sits above whatever is drawn over a player's name (Wynntils lines and badges, title mods)
 
 ## Installation
 1. Make sure you have Fabric Loader and Fabric API installed
@@ -43,11 +45,20 @@ You can configure WynnBubbles through the Mod Menu interface or config file:
 - Access the mod's configuration through Mod Menu to adjust bubble appearance
 
 ## Requirements
-- Minecraft 1.21 or 1.21.1
-- Fabric Loader 0.16.5 or higher
+- Minecraft 1.21.11
+- Fabric Loader 0.18.4 or higher
 - Fabric API
 - Cloth Config API
-- Mod Menu
+- Mod Menu (optional, for the config screen)
+- Wynntils (optional, used to match chat to players and ghosts when installed)
+
+## Building and testing
+- `./gradlew build` compiles the mod and runs the unit tests
+- `./gradlew runClientGameTest` starts a dev client, puts two fake players in a test world, sends Wynncraft-style chat lines and saves screenshots to `build/run/clientGameTest/screenshots`
+- If Gradle fails on Windows with "Unable to establish loopback connection", set `JAVA_TOOL_OPTIONS=-Djdk.net.unixdomain.tmpdir=C:\some\short\path` and point `TEMP`/`TMP` at a short path too
+
+## License
+LGPL-3.0, see `LICENSE` and `NOTICE.md`. Versions before 2.0.0 were MIT.
 
 ## Go Ham
 - I don't know nothing about java so if you wanna fork this and fix it up go ham
@@ -56,6 +67,7 @@ You can configure WynnBubbles through the Mod Menu interface or config file:
 
 ## Acknowledgments
 - Thanks to Globox_Z for the original TalkBubbles mod
+- Thanks to CerbonXD and BluSpring for Talk Balloons, which the stacked bubbles follow
 - Thanks to everyone who I forced to help test the chat detection
 - Thanks to IgbarVonSquid!!!
 

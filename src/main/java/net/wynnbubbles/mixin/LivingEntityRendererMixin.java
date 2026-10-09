@@ -1,67 +1,77 @@
 package net.wynnbubbles.mixin;
 
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.AbstractClientPlayerEntity;
-import net.minecraft.client.render.VertexConsumerProvider;
-import net.minecraft.client.render.entity.LivingEntityRenderer;
-import net.minecraft.client.render.entity.state.LivingEntityRenderState;
-import net.minecraft.client.render.entity.state.PlayerEntityRenderState;
-import net.minecraft.client.util.math.MatrixStack;
-import net.wynnbubbles.accessor.AbstractClientPlayerEntityAccessor;
-import net.wynnbubbles.accessor.PlayerEntityRenderStateAccessor;
-import net.wynnbubbles.util.RenderBubble;
+import com.mojang.blaze3d.vertex.PoseStack;
+import java.util.List;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.entity.LivingEntityRenderer;
+import net.minecraft.client.renderer.entity.state.AvatarRenderState;
+import net.minecraft.client.renderer.entity.state.LivingEntityRenderState;
+import net.minecraft.client.renderer.state.CameraRenderState;
+import net.wynnbubbles.WynnBubbles;
+import net.wynnbubbles.accessor.BubbleRenderStateAccessor;
+import net.wynnbubbles.bubble.Bubble;
+import net.wynnbubbles.client.BubbleRenderer;
+import net.wynnbubbles.client.NametagStackTracker;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import java.util.List;
 
 @Mixin(LivingEntityRenderer.class)
-public abstract class LivingEntityRendererMixin {
+public class LivingEntityRendererMixin {
+    @Unique
+    private static final String SUBMIT =
+            "submit(Lnet/minecraft/client/renderer/entity/state/LivingEntityRenderState;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/SubmitNodeCollector;Lnet/minecraft/client/renderer/state/CameraRenderState;)V";
 
-    @Inject(
-            method = "render(Lnet/minecraft/client/render/entity/state/LivingEntityRenderState;" +
-                    "Lnet/minecraft/client/util/math/MatrixStack;" +
-                    "Lnet/minecraft/client/render/VertexConsumerProvider;I)V",
-            at = @At("TAIL")
-    )
-    private void onRenderTail(
+    /** Gap between the top of the nametag stack and the tip of the bubble arrow, in blocks. */
+    @Unique
+    private static final float GAP_ABOVE_NAMETAGS = 0.06f;
+
+    /** Height above the head when nothing at all is drawn there (e.g. your own player). */
+    @Unique
+    private static final float GAP_ABOVE_BARE_HEAD = 0.3f;
+
+    @Inject(method = SUBMIT, at = @At("HEAD"))
+    private void wynnbubbles$beginTracking(
             LivingEntityRenderState state,
-            MatrixStack matrices,
-            VertexConsumerProvider vertexConsumers,
-            int light,
-            CallbackInfo ci
-    ) {
-        if (!(state instanceof PlayerEntityRenderState playerState)) {
-            return;
-        }
+            PoseStack poseStack,
+            SubmitNodeCollector collector,
+            CameraRenderState camera,
+            CallbackInfo ci) {
+        if (wynnbubbles$bubbles(state).isEmpty()) return;
+        NametagStackTracker.begin(poseStack, state.boundingBoxHeight);
+    }
 
-        MinecraftClient client = MinecraftClient.getInstance();
-        if (client.world == null) return;
+    // TAIL is after super.submit, which is where the nametag (and everything mods hang off it) is submitted
+    @Inject(method = SUBMIT, at = @At("TAIL"))
+    private void wynnbubbles$submitBubbles(
+            LivingEntityRenderState state,
+            PoseStack poseStack,
+            SubmitNodeCollector collector,
+            CameraRenderState camera,
+            CallbackInfo ci) {
+        List<Bubble> bubbles = wynnbubbles$bubbles(state);
+        if (bubbles.isEmpty()) return;
 
-        var entity = client.world.getEntityById(playerState.id);
-        if (!(entity instanceof AbstractClientPlayerEntity player)) return;
+        float stackTop = NametagStackTracker.end();
+        float anchor = Float.isNaN(stackTop)
+                ? state.boundingBoxHeight + GAP_ABOVE_BARE_HEAD
+                : stackTop + GAP_ABOVE_NAMETAGS;
 
-        List<String> bubbleText = ((AbstractClientPlayerEntityAccessor) player).getChatText();
-        if (bubbleText == null || bubbleText.isEmpty()) {
-            return;
-        }
+        BubbleRenderer.submit(
+                poseStack,
+                collector,
+                camera,
+                Minecraft.getInstance().font,
+                bubbles,
+                anchor + WynnBubbles.CONFIG.chatHeight);
+    }
 
-        if (client.world == null) {
-            return;
-        }
-
-        RenderBubble.renderBubble(
-                matrices,
-                vertexConsumers,
-                client.textRenderer,
-                client.getEntityRenderDispatcher(),
-                bubbleText,
-                ((AbstractClientPlayerEntityAccessor) player).getWidth(),
-                ((AbstractClientPlayerEntityAccessor) player).getHeight(),
-                player.getHeight(),
-                light,
-                (AbstractClientPlayerEntityAccessor) player
-        );
+    @Unique
+    private static List<Bubble> wynnbubbles$bubbles(LivingEntityRenderState state) {
+        if (!(state instanceof AvatarRenderState) || state.isInvisible) return List.of();
+        return ((BubbleRenderStateAccessor) state).wynnbubbles$getBubbles();
     }
 }
