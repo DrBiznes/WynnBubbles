@@ -123,7 +123,9 @@ public final class BubbleRenderer {
 
         quad(pose, consumer, x0, y2, C, C, 0, 9, SRC_CORNER, SRC_CORNER, tint);
         quad(pose, consumer, x1, y2, midW, C, 7, 9, SRC_CORNER, SRC_CORNER, tint);
-        quad(pose, consumer, x2, y2, C, C, 14, 9, SRC_CORNER, SRC_CORNER, tint);
+        // The bottom-right corner's top row (v=9) is clipped by the arrow sprite at (18,7), leaving a
+        // two-pixel hole on its right; skip it and sample from v=10, whose row is the one v=9 should be.
+        quad(pose, consumer, x2, y2, C, C, 14, 10, SRC_CORNER, SRC_CORNER - 1, tint);
 
         if (withArrow) {
             // the arrow sprite's top row is the bubble's own border, so only the rows below it are drawn

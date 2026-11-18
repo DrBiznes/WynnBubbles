@@ -1,12 +1,10 @@
 package net.wynnbubbles.config;
 
-import me.shedaniel.autoconfig.ConfigData;
-import me.shedaniel.autoconfig.annotation.Config;
-import me.shedaniel.cloth.clothconfig.shadowed.blue.endless.jankson.Comment;
-
-@Config(name = "wynnbubbles")
-@Config.Gui.Background("minecraft:textures/block/stone.png")
-public class WynnBubblesConfig implements ConfigData {
+/**
+ * All options, stored in {@code config/wynnbubbles.json5} by {@link ConfigManager}. The file can be
+ * edited by hand; the Cloth Config screen (when Cloth Config and Mod Menu are installed) edits the same fields.
+ */
+public class WynnBubblesConfig {
 
     @Comment("Maximum distance in blocks at which chat bubbles are visible from other players")
     public double chatRange = 30.0D;

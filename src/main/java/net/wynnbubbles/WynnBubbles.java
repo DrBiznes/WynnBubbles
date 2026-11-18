@@ -1,11 +1,10 @@
 package net.wynnbubbles;
 
-import me.shedaniel.autoconfig.AutoConfig;
-import me.shedaniel.autoconfig.serializer.JanksonConfigSerializer;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.wynnbubbles.bubble.BubbleStore;
+import net.wynnbubbles.config.ConfigManager;
 import net.wynnbubbles.config.WynnBubblesConfig;
 import net.wynnbubbles.identity.Identities;
 import org.slf4j.Logger;
@@ -25,8 +24,7 @@ public class WynnBubbles implements ClientModInitializer {
 
     @Override
     public void onInitializeClient() {
-        AutoConfig.register(WynnBubblesConfig.class, JanksonConfigSerializer::new);
-        CONFIG = AutoConfig.getConfigHolder(WynnBubblesConfig.class).getConfig();
+        CONFIG = ConfigManager.load();
         Identities.init();
 
         ClientTickEvents.END_CLIENT_TICK.register(client -> {

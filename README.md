@@ -18,9 +18,9 @@ Show the people what you're trying to say. Chat floats above your head and chang
 
 ## Installation
 1. Make sure you have Fabric Loader and Fabric API installed
-2. Download and install Cloth Config API
-3. Download the latest version of WynnBubbles from the versions page
-4. Place the downloaded .jar file in your Minecraft mods folder
+2. Download the latest version of WynnBubbles from the versions page
+3. Place the downloaded .jar file in your Minecraft mods folder
+4. Optional: install Cloth Config API and Mod Menu for an in-game config screen
 
 ## Future Features
 - Custom icons above player head when casting spells that put messages in chat like War Scream, Heal, Windy Feet
@@ -29,11 +29,16 @@ Show the people what you're trying to say. Chat floats above your head and chang
 - Suggest features on the GitHub issues page!
 
 ## Configuration
-You can configure WynnBubbles through the Mod Menu interface or config file:
-1. Install [Mod Menu](https://modrinth.com/mod/modmenu) if you haven't already
-2. In the game, go to Mods -> Find "WynnBubbles" -> Click "Configure"
-3. Adjust settings like bubble scale, colors, chat range, and how many bubbles stack
-4. Toggle showing your own bubbles on/off
+You can configure WynnBubbles in game or through the config file.
+
+In game (needs [Cloth Config API](https://modrinth.com/mod/cloth-config) and [Mod Menu](https://modrinth.com/mod/modmenu)):
+1. Go to Mods -> Find "WynnBubbles" -> Click "Configure"
+2. Adjust settings like bubble scale, colors, chat range, and how many bubbles stack
+
+Config file (no extra mods needed):
+1. Launch the game once so `config/wynnbubbles.json5` is created
+2. Edit it in any text editor; each option has a comment explaining it
+3. Restart the game to apply changes
 
 ## Usage
 - Chat normally in-game to see bubbles appear
@@ -42,14 +47,13 @@ You can configure WynnBubbles through the Mod Menu interface or config file:
   - Aqua = Guild chat
   - Green = Private messages
 - Bubbles automatically disappear after a configurable time
-- Access the mod's configuration through Mod Menu to adjust bubble appearance
+- Adjust bubble appearance through Mod Menu or the config file
 
 ## Requirements
 - Minecraft 1.21.11
 - Fabric Loader 0.18.4 or higher
 - Fabric API
-- Cloth Config API
-- Mod Menu (optional, for the config screen)
+- Cloth Config API and Mod Menu (optional, for the in-game config screen)
 - Wynntils (optional, used to match chat to players and ghosts when installed)
 
 ## Building and testing
